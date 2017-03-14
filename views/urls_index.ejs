@@ -4,7 +4,10 @@
   <title>TinyApp - URLs Index</title>
 </head>
 <body>
-  <h1>Tiny App - URLs Index</h1>
+  <header>
+    <% include partials/_header %>
+  </header>
+  <h2>URLs Index</h2>
 <ul>
   <% for (var url in urls) { %>
   <li><%= urls[url] + "\t-\t" + url %></li>
