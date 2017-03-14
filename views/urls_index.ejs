@@ -1,9 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>TinyApp</title>
+  <title>TinyApp - URLs Index</title>
 </head>
 <body>
+  <h1>Tiny App - URLs Index</h1>
+<ul>
+  <% for (var url in urls) { %>
+  <li><%= urls[url] + "\t-\t" + url %></li>
+  <% } %>
+</ul>
+
+<a href="Shorten another URL">Shorten another URL</a>
 
 </body>
 </html>
