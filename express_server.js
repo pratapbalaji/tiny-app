@@ -32,7 +32,7 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-app.post("/urls/:id/delete", (req, res) => {
+app.post("/urls/:id/delete", (req, res) => { //added delete functionality when delete post request is received from urls index page
   let shortURL = req.params.id;
   delete urlDatabase[shortURL];
   console.log(urlDatabase);
