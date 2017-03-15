@@ -35,7 +35,6 @@ app.get("/urls", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => { //added delete functionality when delete post request is received from urls index page
   let shortURL = req.params.id;
   delete urlDatabase[shortURL];
-  console.log(urlDatabase);
   res.redirect("http://localhost:8080/urls");
 });
 
