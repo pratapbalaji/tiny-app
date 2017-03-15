@@ -12,7 +12,7 @@
       <% for (var url in urls) { %>
       <li><%= urls[url] + "\t-\t" + url %>
       <form method="POST" action="/urls/<%=url%>/delete">
-        <input type="submit" id="delete" name="delete" value="Delete">
+        <input type="submit" id="<%=url%>" name="<%=url%>" value="Delete">
       </form></li>
       <% } %>
     </ul>

@@ -26,16 +26,24 @@ app.get("/", (req, res) => {
   res.end("Hello!");
 });
 
-app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
-});
 
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
-app.post("/urls", (req, res) => {
+app.post("/urls/:id/delete", (req, res) => {
+  let shortURL = req.params.id;
+  delete urlDatabase[shortURL];
+  console.log(urlDatabase);
+  res.redirect("http://localhost:8080/urls");
+});
+
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
+app.post("/urls/new", (req, res) => {
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect("http://localhost:8080/urls/" + shortURL);
