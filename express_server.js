@@ -6,27 +6,56 @@ const cookieParser = require("cookie-parser");
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
-
 app.set("view engine", "ejs");
 
-var urlDatabase = {
+const users = {
+  "vinay": {
+    id: "vinay",
+    email: "vinaybalaji@gmail.com",
+    password: "purple-monkey-dinosaur"
+  },
+ "neha": {
+    id: "neha",
+    email: "nehachetan@gmail.com",
+    password: "dishwasher-funk"
+  }
+};
+
+const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
 function generateRandomString() {
   var charset = "abcdefghijklmnopqrstuvwxyz0123456789";
-  do {
-    var text = "";
-    for( var i=0; i < 6; i++ ) {
-      text += charset.charAt(Math.floor(Math.random() * charset.length));
-      }
-    } while (urlDatabase[text]); // will generate random string until the string does not already exist in the urlDatabase
+  var text = "";
+  for( var i=0; i < 6; i++ ) {
+    text += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
   return text;
 }
 
 app.get("/", (req, res) => {
   res.end("Hello!");
+});
+
+app.get("/register", (req, res) => {
+  res.render("urls_register");
+});
+
+app.post("/register", (req, res) => {
+  let userInputEmail = req.body.email;
+  let userInputPassword = req.body.password;
+  do {
+    var userId = generateRandomString();
+  } while (users[userId]);
+  users[userId] = {};
+  users[userId]["id"] = userId;
+  users[userId]["email"] = userInputEmail;
+  users[userId]["password"] = userInputPassword;
+  console.log(users);
+  res.cookie("user_id", userId);
+  res.redirect("http://localhost:" + PORT + "/");
 });
 
 app.post("/login", (req,res) => {
@@ -38,7 +67,7 @@ app.post("/login", (req,res) => {
 app.post("/logout", (req, res) => {
   let username = req.cookies["username"];
   res.clearCookie("username", username);
-  res.redirect("http://localhost:" + PORT + "/")
+  res.redirect("http://localhost:" + PORT + "/");
 });
 
 app.get("/urls", (req, res) => {
@@ -49,7 +78,9 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  let shortURL = generateRandomString();
+  do {
+    var shortURL = generateRandomString();
+  } while (urlDatabase[shortURL]);
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect("http://localhost:" + PORT + "/urls/" + shortURL);
 });
