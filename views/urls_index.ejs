@@ -8,13 +8,25 @@
     <% include partials/_header %>
   </header>
   <h2>URLs Index</h2>
-<ul>
-  <% for (var url in urls) { %>
-  <li><%= urls[url] + "\t-\t" + url %></li>
-  <% } %>
-</ul>
-
-<a href="Shorten another URL">Shorten another URL</a>
+    <ul>
+      <% for (var url in urls) { %>
+      <li><%= urls[url] + "\t-\t" + url %>
+      <form method="POST" action="/urls/<%=url%>/delete">
+        <input type="submit" id="delete" name="delete" value="Delete">
+      </form></li>
+      <% } %>
+    </ul>
+  </form>
+  <a href="Shorten another URL">Shorten another URL</a>
 
 </body>
 </html>
+
+
+
+
+<form action="/urls" method="POST" style="margin:150px;">
+      <label for="longURL">Enter a URL:</label>
+      <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
+      <input type="submit" value="Submit">
+    </form>

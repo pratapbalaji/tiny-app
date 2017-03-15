@@ -26,13 +26,19 @@ app.get("/", (req, res) => {
   res.end("Hello!");
 });
 
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+app.post("/urls", (req, res) => {
+  let shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect("http://localhost:8080/urls/" + shortURL);
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -42,12 +48,6 @@ app.get("/u/:shortURL", (req, res) => {
   } else {
     res.send("This URL does not exist in the database. Try again."); // if no, send a message back saying that this URL does not exist in the database
   }
-});
-
-app.post("/urls", (req, res) => {
-  let shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-  res.redirect("http://localhost:8080/urls/" + shortURL);
 });
 
 app.get("/urls/:id", (req, res) => {
