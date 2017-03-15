@@ -9,5 +9,16 @@
   </header>
   <h2>URL Show</h2>
   <%= urls[shortURL] + "\t-\t" + shortURL; %>
+  <form method = POST action="/urls/<%=shortURL%>/update">
+    <input id="updatedLongURL" name="updatedLongURL" type="text" placeholder="http://" style="width: 300px">
+    <input type="submit" value="submit">
+  </form>
 </body>
 </html>
+
+
+<!-- <form action="/urls/new" method="POST" style="margin:150px;">
+      <label for="longURL">Enter a URL:</label>
+      <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
+      <input type="submit" value="Submit">
+    </form> -->

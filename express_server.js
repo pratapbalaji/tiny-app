@@ -48,6 +48,22 @@ app.post("/urls/new", (req, res) => {
   res.redirect("http://localhost:8080/urls/" + shortURL);
 });
 
+app.get("/urls/:id", (req, res) => {
+  let templateVars = {
+    shortURL: req.params.id,
+    urls: urlDatabase
+     };
+  res.render("urls_show", templateVars);
+});
+
+app.post("/urls/:id/update", (req, res) => {
+  let shortURL = req.params.id;
+  let longURL = req.body.updatedLongURL;
+  urlDatabase[shortURL] = longURL;
+  console.log(urlDatabase);
+  res.redirect("http://localhost:8080/urls");
+});
+
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) { // checks if there is a valid object with the provided short URL
   let longURL = urlDatabase[req.params.shortURL];
@@ -57,13 +73,6 @@ app.get("/u/:shortURL", (req, res) => {
   }
 });
 
-app.get("/urls/:id", (req, res) => {
-  let templateVars = {
-    shortURL: req.params.id,
-    urls: urlDatabase
-     };
-  res.render("urls_show", templateVars);
-});
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
