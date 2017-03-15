@@ -3,4 +3,7 @@
 <form method="POST" action="/login">
   <input type="text" name="username" placeholder="Enter username">
   <input type="submit" value="login">
+  <% if (username !== undefined) {%>
+  <%= "Logged in as: " + username%>
+  <% } %>
 </form>

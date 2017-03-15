@@ -31,12 +31,14 @@ app.get("/", (req, res) => {
 
 app.post("/login", (req,res) => {
   let username = req.body.username;
-  res.cookie('username', username);
+  res.cookie("username", username);
   res.redirect("http://localhost:8080/");
 });
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = {
+    username: req.cookies["username"],
+    urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
@@ -48,7 +50,10 @@ app.post("/urls/:id/delete", (req, res) => { //added delete functionality when d
 
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let templateVars = {
+    username: req.cookies["username"]
+  };
+  res.render("urls_new", templateVars);
 });
 
 app.post("/urls/new", (req, res) => {
@@ -60,7 +65,8 @@ app.post("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   let templateVars = {
     shortURL: req.params.id,
-    urls: urlDatabase
+    urls: urlDatabase,
+    username: req.cookies["username"]
      };
   res.render("urls_show", templateVars);
 });
