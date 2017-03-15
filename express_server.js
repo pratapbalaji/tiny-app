@@ -33,10 +33,14 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+app.get("/u/:shortURL", (req, res) => {
+  let longURL = urlDatabase[req.params.shortURL];
+  //console.log(req.params.shortURL);
+  res.redirect(longURL);
+});
+
 app.post("/urls", (req, res) => {
-  // console.log(req.body); // debug statement to see POST parameters
-  // res.send("Ok"); // Respond with 'Ok' (we will replace this)
-  var shortURL = generateRandomString();
+  let shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect("http://localhost:8080/urls/" + shortURL);
   console.log(urlDatabase);
