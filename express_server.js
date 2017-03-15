@@ -29,6 +29,11 @@ app.get("/", (req, res) => {
   res.end("Hello!");
 });
 
+app.post("/login", (req,res) => {
+  let username = req.body.username;
+  res.cookie('username', username);
+  res.redirect("http://localhost:8080/");
+});
 
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase };
@@ -40,6 +45,7 @@ app.post("/urls/:id/delete", (req, res) => { //added delete functionality when d
   delete urlDatabase[shortURL];
   res.redirect("http://localhost:8080/urls");
 });
+
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
