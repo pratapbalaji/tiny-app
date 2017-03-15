@@ -35,11 +35,23 @@ app.post("/login", (req,res) => {
   res.redirect("http://localhost:8080/");
 });
 
+app.post("/logout", (req, res) => {
+  let username = req.cookies["username"];
+  res.clearCookie("username", username);
+  res.redirect("http://localhost:8080/")
+});
+
 app.get("/urls", (req, res) => {
   let templateVars = {
     username: req.cookies["username"],
     urls: urlDatabase };
   res.render("urls_index", templateVars);
+});
+
+app.post("/urls", (req, res) => {
+  let shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect("http://localhost:8080/urls/" + shortURL);
 });
 
 app.post("/urls/:id/delete", (req, res) => { //added delete functionality when delete post request is received from urls index page
@@ -48,18 +60,11 @@ app.post("/urls/:id/delete", (req, res) => { //added delete functionality when d
   res.redirect("http://localhost:8080/urls");
 });
 
-
 app.get("/urls/new", (req, res) => {
   let templateVars = {
     username: req.cookies["username"]
   };
   res.render("urls_new", templateVars);
-});
-
-app.post("/urls/new", (req, res) => {
-  let shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-  res.redirect("http://localhost:8080/urls/" + shortURL);
 });
 
 app.get("/urls/:id", (req, res) => {
@@ -75,7 +80,6 @@ app.post("/urls/:id/update", (req, res) => {
   let shortURL = req.params.id;
   let longURL = req.body.updatedLongURL;
   urlDatabase[shortURL] = longURL;
-  console.log(urlDatabase);
   res.redirect("http://localhost:8080/urls");
 });
 
