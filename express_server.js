@@ -12,11 +12,13 @@ var urlDatabase = {
 };
 
 function generateRandomString() {
-  var text = "";
   var charset = "abcdefghijklmnopqrstuvwxyz0123456789";
-  for( var i=0; i < 6; i++ ) {
-    text += charset.charAt(Math.floor(Math.random() * charset.length));
-    }
+  do {
+    var text = "";
+    for( var i=0; i < 6; i++ ) {
+      text += charset.charAt(Math.floor(Math.random() * charset.length));
+      }
+    } while (urlDatabase[text]); // will generate random string until the string does not already exist in the urlDatabase
   return text;
 }
 
@@ -34,16 +36,18 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
+  if (urlDatabase[req.params.shortURL]) { // checks if there is a valid object with the provided short URL
   let longURL = urlDatabase[req.params.shortURL];
-  //console.log(req.params.shortURL);
-  res.redirect(longURL);
+  res.redirect(longURL); // if yes, user is redirected to the longURL of provided shortURL
+  } else {
+    res.send("This URL does not exist in the database. Try again."); // if no, send a message back saying that this URL does not exist in the database
+  }
 });
 
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect("http://localhost:8080/urls/" + shortURL);
-  console.log(urlDatabase);
 });
 
 app.get("/urls/:id", (req, res) => {
