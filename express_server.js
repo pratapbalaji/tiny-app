@@ -1,6 +1,6 @@
 var express = require("express");
 var app = express();
-var PORT = process.env.PORT || 8080; // default port 8080
+var PORT = process.env.PORT || 3000; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
@@ -32,13 +32,13 @@ app.get("/", (req, res) => {
 app.post("/login", (req,res) => {
   let username = req.body.username;
   res.cookie("username", username);
-  res.redirect("http://localhost:8080/");
+  res.redirect("http://localhost:" + PORT + "/");
 });
 
 app.post("/logout", (req, res) => {
   let username = req.cookies["username"];
   res.clearCookie("username", username);
-  res.redirect("http://localhost:8080/")
+  res.redirect("http://localhost:" + PORT + "/")
 });
 
 app.get("/urls", (req, res) => {
@@ -51,13 +51,13 @@ app.get("/urls", (req, res) => {
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
-  res.redirect("http://localhost:8080/urls/" + shortURL);
+  res.redirect("http://localhost:" + PORT + "/urls/" + shortURL);
 });
 
 app.post("/urls/:id/delete", (req, res) => { //added delete functionality when delete post request is received from urls index page
   let shortURL = req.params.id;
   delete urlDatabase[shortURL];
-  res.redirect("http://localhost:8080/urls");
+  res.redirect("http://localhost:" + PORT + "/urls");
 });
 
 app.get("/urls/new", (req, res) => {
@@ -73,14 +73,18 @@ app.get("/urls/:id", (req, res) => {
     urls: urlDatabase,
     username: req.cookies["username"]
      };
-  res.render("urls_show", templateVars);
+  if (urlDatabase[templateVars["shortURL"]]) {
+    res.render("urls_show", templateVars);
+  } else {
+    res.send("This URL does not exist in the database. Try again.")
+  }
 });
 
 app.post("/urls/:id/update", (req, res) => {
   let shortURL = req.params.id;
   let longURL = req.body.updatedLongURL;
   urlDatabase[shortURL] = longURL;
-  res.redirect("http://localhost:8080/urls");
+  res.redirect("http://localhost:" + PORT + "/urls");
 });
 
 app.get("/u/:shortURL", (req, res) => {
