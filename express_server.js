@@ -83,6 +83,21 @@ function returnUserID (userInputEmail) {
   }
 }
 
+function returnURLDatabaseforUser (userId) {
+  let urlDatabaseForUser = {};
+  for (url in urlDatabase) {
+    if (urlDatabase.hasOwnProperty(url)) {
+      if(urlDatabase[url]["userID"] === userId) {
+        urlDatabaseForUser[url] = {
+          "userID": userId,
+          "url": urlDatabase[url]["url"]
+        }
+      }
+    }
+  }
+  return urlDatabaseForUser;
+}
+
 app.get("/", (req, res) => {
   res.end("Hello!");
 });
@@ -133,17 +148,23 @@ app.post("/logout", (req, res) => {
 
 app.get("/urls", (req, res) => {
   let userId = req.cookies["user_id"];
+  if (userId === undefined) {
+    res.redirect("/login");
+  } else {
   let templateVars = {
     user: users[userId],
-    urls: urlDatabase };
+    urls: returnURLDatabaseforUser(userId) };
   res.render("urls_index", templateVars);
+  }
 });
 
 app.post("/urls", (req, res) => {
   do {
     var shortURL = generateRandomString();
   } while (urlDatabase[shortURL]);
+  let userId = req.cookies["user_id"];
   urlDatabase[shortURL] = {};
+  urlDatabase[shortURL]["userID"] = userId;
   urlDatabase[shortURL]["url"] = req.body.longURL;
   res.redirect("http://localhost:" + PORT + "/urls/" + shortURL);
 });
@@ -158,7 +179,7 @@ app.post("/urls/:id/delete", (req, res) => { //added delete functionality when d
       delete urlDatabase[shortURL];
       res.redirect("http://localhost:" + PORT + "/urls");
     } else {
-      res.status(401).send("You are not authorized to delete this URL.")
+      res.status(401).send("You are not authorized to delete this URL.");
     }
   }
 });
@@ -177,15 +198,22 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   let userId = req.cookies["user_id"];
-  let templateVars = {
-    shortURL: req.params.id,
-    urls: urlDatabase,
-    user: users[userId]
-     };
-  if (urlDatabase[templateVars.shortURL]) {
-    res.render("urls_show", templateVars);
+  if (userId === undefined) {
+    res.redirect("/login");
   } else {
-    res.send("This URL does not exist in the database. Try again.")
+    let shortURL = req.params.id;
+    if (!urlDatabase[shortURL]) {
+      res.send("This URL does not exist in the database. Try again.")
+    } else if (urlDatabase[shortURL]["userID"] === userId) {
+      let templateVars = {
+        shortURL: shortURL,
+        urls: urlDatabase,
+        user: users[userId]
+         };
+        res.render("urls_show", templateVars);
+      } else {
+        res.status(401).send("You are not authorized to delete this URL.");
+      }
   }
 });
 
