@@ -22,8 +22,14 @@ const users = {
 };
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    userID: "vinay",
+    url: "http://www.lighthouselabs.ca"
+  },
+  "9sm5xK": {
+    userID: "neha",
+    url: "http://www.google.com"
+  }
 };
 
 function generateRandomString() {
@@ -137,7 +143,8 @@ app.post("/urls", (req, res) => {
   do {
     var shortURL = generateRandomString();
   } while (urlDatabase[shortURL]);
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL] = {};
+  urlDatabase[shortURL]["url"] = req.body.longURL;
   res.redirect("http://localhost:" + PORT + "/urls/" + shortURL);
 });
 
@@ -166,7 +173,7 @@ app.get("/urls/:id", (req, res) => {
     urls: urlDatabase,
     user: users[userId]
      };
-  if (urlDatabase[templateVars["shortURL"]]) {
+  if (urlDatabase[templateVars.shortURL]) {
     res.render("urls_show", templateVars);
   } else {
     res.send("This URL does not exist in the database. Try again.")
@@ -176,13 +183,13 @@ app.get("/urls/:id", (req, res) => {
 app.post("/urls/:id/update", (req, res) => {
   let shortURL = req.params.id;
   let longURL = req.body.updatedLongURL;
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL]["url"] = longURL;
   res.redirect("http://localhost:" + PORT + "/urls");
 });
 
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) { // checks if there is a valid object with the provided short URL
-  let longURL = urlDatabase[req.params.shortURL];
+  let longURL = urlDatabase[req.params.shortURL][url];
   res.redirect(longURL); // if yes, user is redirected to the longURL of provided shortURL
   } else {
     res.send("This URL does not exist in the database. Try again."); // if no, send a message back saying that this URL does not exist in the database
