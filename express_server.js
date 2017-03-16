@@ -35,6 +35,27 @@ function generateRandomString() {
   return text;
 }
 
+function checkIfEmailExists (userInputEmail) {
+  for (var user in users) {
+    if (users.hasOwnProperty(user)) {
+      if (users[user]["email"] === userInputEmail) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function checkRegisterFormData (userInputEmail, userInputPassword) {
+  if (userInputEmail === '' || userInputPassword === '') {
+    return false;
+  } else if (checkIfEmailExists(userInputEmail)) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
 app.get("/", (req, res) => {
   res.end("Hello!");
 });
@@ -46,16 +67,20 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   let userInputEmail = req.body.email;
   let userInputPassword = req.body.password;
-  do {
-    var userId = generateRandomString();
-  } while (users[userId]);
-  users[userId] = {};
-  users[userId]["id"] = userId;
-  users[userId]["email"] = userInputEmail;
-  users[userId]["password"] = userInputPassword;
-  console.log(users);
-  res.cookie("user_id", userId);
-  res.redirect("http://localhost:" + PORT + "/");
+  if(checkRegisterFormData(userInputEmail, userInputPassword)) {
+    do {
+      var userId = generateRandomString();
+    } while (users[userId]);
+    users[userId] = {};
+    users[userId]["id"] = userId;
+    users[userId]["email"] = userInputEmail;
+    users[userId]["password"] = userInputPassword;
+    console.log(users);
+    res.cookie("user_id", userId);
+    res.redirect("http://localhost:" + PORT + "/");
+  } else {
+    res.status(400).send("Invalid email / password or email has already been registered.");
+  }
 });
 
 app.post("/login", (req,res) => {
