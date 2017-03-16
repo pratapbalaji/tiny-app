@@ -3,6 +3,7 @@ var app = express();
 var PORT = process.env.PORT || 3000; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const bcrypt = require("bcrypt");
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
@@ -12,12 +13,12 @@ const users = {
   "vinay": {
     id: "vinay",
     email: "vinaybalaji@gmail.com",
-    password: "purple-monkey-dinosaur"
+    password: bcrypt.hashSync("purple-monkey-dinosaur", 10)
   },
  "neha": {
     id: "neha",
     email: "nehachetan@gmail.com",
-    password: "dishwasher-funk"
+    password: bcrypt.hashSync("dishwasher-funk", 10)
   }
 };
 
@@ -53,7 +54,7 @@ function checkIfEmailExists (userInputEmail) {
 }
 
 function checkRegisterFormData (userInputEmail, userInputPassword) {
-  if (userInputEmail === '' || userInputPassword === '') {
+  if (userInputEmail === '' || bcrypt.compareSync('', userInputPassword)) {
     return false;
   } else if (checkIfEmailExists(userInputEmail)) {
     return false;
@@ -65,7 +66,7 @@ function checkRegisterFormData (userInputEmail, userInputPassword) {
 function checkIfPasswordMatches (userInputEmail, userInputPassword) {
   for (var user in users) {
     if(users.hasOwnProperty(user)) {
-      if ((users[user]["email"] === userInputEmail) && (users[user]["password"] === userInputPassword)) {
+      if ((users[user]["email"] === userInputEmail) && (bcrypt.compareSync(userInputPassword, users[user]["password"]))) {
         return true;
       }
     }
@@ -108,7 +109,7 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   let userInputEmail = req.body.email;
-  let userInputPassword = req.body.password;
+  let userInputPassword = bcrypt.hashSync(req.body.password, 10);
   if(checkRegisterFormData(userInputEmail, userInputPassword)) {
     do {
       var userId = generateRandomString();
