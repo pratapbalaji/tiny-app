@@ -149,10 +149,14 @@ app.post("/urls/:id/delete", (req, res) => { //added delete functionality when d
 
 app.get("/urls/new", (req, res) => {
   let userId = req.cookies["user_id"];
+  if (userId === undefined) {
+    res.redirect("/login");
+  } else {
   let templateVars = {
     user: users[userId]
   };
   res.render("urls_new", templateVars);
+  }
 });
 
 app.get("/urls/:id", (req, res) => {
