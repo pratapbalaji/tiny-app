@@ -56,6 +56,27 @@ function checkRegisterFormData (userInputEmail, userInputPassword) {
   }
 }
 
+function checkIfPasswordMatches (userInputEmail, userInputPassword) {
+  for (var user in users) {
+    if(users.hasOwnProperty(user)) {
+      if ((users[user]["email"] === userInputEmail) && (users[user]["password"] === userInputPassword)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function returnUserID (userInputEmail) {
+  for (var user in users) {
+    if (users.hasOwnProperty(user)) {
+      if (users[user]["email"] === userInputEmail) {
+        return users[user]["id"];
+      }
+    }
+  }
+}
+
 app.get("/", (req, res) => {
   res.end("Hello!");
 });
@@ -83,21 +104,31 @@ app.post("/register", (req, res) => {
   }
 });
 
+app.get("/login", (req, res) => {
+  res.render("urls_login");
+});
+
 app.post("/login", (req,res) => {
-  let username = req.body.username;
-  res.cookie("username", username);
-  res.redirect("http://localhost:" + PORT + "/");
+  let userEmail = req.body.email;
+  let userPassword = req.body.password;
+  if (checkIfEmailExists(userEmail) && checkIfPasswordMatches(userEmail, userPassword)) {
+    res.cookie("user_id", returnUserID(userEmail));
+    res.redirect("http://localhost:" + PORT + "/");
+  } else {
+    res.status(403).send("Invalid email or password.");
+  }
+
 });
 
 app.post("/logout", (req, res) => {
-  let username = req.cookies["username"];
-  res.clearCookie("username", username);
+  let userId = req.cookies["user_id"];
+  res.clearCookie("user_id", userId);
   res.redirect("http://localhost:" + PORT + "/");
 });
 
 app.get("/urls", (req, res) => {
   let templateVars = {
-    username: req.cookies["username"],
+    user: users[req.cookies],
     urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
@@ -118,7 +149,7 @@ app.post("/urls/:id/delete", (req, res) => { //added delete functionality when d
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {
-    username: req.cookies["username"]
+    user: users[req.cookies]
   };
   res.render("urls_new", templateVars);
 });
@@ -127,7 +158,7 @@ app.get("/urls/:id", (req, res) => {
   let templateVars = {
     shortURL: req.params.id,
     urls: urlDatabase,
-    username: req.cookies["username"]
+    user: users[req.cookies]
      };
   if (urlDatabase[templateVars["shortURL"]]) {
     res.render("urls_show", templateVars);

@@ -1,13 +1,4 @@
 <h1>Tiny App</h1>
 
-<% if (username !== undefined) {%>
-<%= "Logged in as: " + username%>
-<form method="POST" action ="/logout">
-  <input type="submit" value="logout">
-</form>
-<% } else { %>
-<form method="POST" action="/login">
-  <input type="text" name="username" placeholder="Enter username">
-  <input type="submit" value="login">
-</form>
-<% } %>
+<a href="../urls_register">Register Here</a>
+<a href="../urls_login">Already registered? Login Here</a>
