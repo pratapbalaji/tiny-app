@@ -96,7 +96,6 @@ app.post("/register", (req, res) => {
     users[userId]["id"] = userId;
     users[userId]["email"] = userInputEmail;
     users[userId]["password"] = userInputPassword;
-    console.log(users);
     res.cookie("user_id", userId);
     res.redirect("http://localhost:" + PORT + "/");
   } else {
@@ -127,8 +126,9 @@ app.post("/logout", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  let userId = req.cookies["user_id"];
   let templateVars = {
-    user: users[req.cookies],
+    user: users[userId],
     urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
@@ -148,17 +148,19 @@ app.post("/urls/:id/delete", (req, res) => { //added delete functionality when d
 });
 
 app.get("/urls/new", (req, res) => {
+  let userId = req.cookies["user_id"];
   let templateVars = {
-    user: users[req.cookies]
+    user: users[userId]
   };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
+  let userId = req.cookies["user_id"]
   let templateVars = {
     shortURL: req.params.id,
     urls: urlDatabase,
-    user: users[req.cookies]
+    user: users[userId]
      };
   if (urlDatabase[templateVars["shortURL"]]) {
     res.render("urls_show", templateVars);

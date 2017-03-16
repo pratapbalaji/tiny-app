@@ -1,4 +1,11 @@
 <h1>Tiny App</h1>
 
-<a href="../urls_register">Register Here</a>
-<a href="../urls_login">Already registered? Login Here</a>
+<% if (user !== undefined) {%>
+<%= "Logged in as: " + user["id"]%>
+<form action="/logout" method="POST">
+  <input type="submit" name="logout" value="logout">
+</form>
+<%} else {%>
+<a href="../register">Register Here</a>
+<a href="../login">Already registered? Login Here</a>
+<%}%>
