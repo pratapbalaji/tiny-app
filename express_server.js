@@ -235,7 +235,7 @@ app.post("/urls/:id/update", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) { // checks if there is a valid object with the provided short URL
-  let longURL = urlDatabase[req.params.shortURL][url];
+  let longURL = urlDatabase[req.params.shortURL]["url"];
   res.redirect(longURL); // if yes, user is redirected to the longURL of provided shortURL
   } else {
     res.send("This URL does not exist in the database. Try again."); // if no, send a message back saying that this URL does not exist in the database
