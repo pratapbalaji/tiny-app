@@ -2,11 +2,15 @@ var express = require("express");
 var app = express();
 var PORT = process.env.PORT || 3000; // default port 8080
 const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
 const bcrypt = require("bcrypt");
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: "session",
+  secret: process.env.SESSION_SECRET || "rabbithole",
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }));
 app.set("view engine", "ejs");
 
 const users = {
@@ -118,7 +122,7 @@ app.post("/register", (req, res) => {
     users[userId]["id"] = userId;
     users[userId]["email"] = userInputEmail;
     users[userId]["password"] = userInputPassword;
-    res.cookie("user_id", userId);
+    req.session.user_id = userId;
     res.redirect("http://localhost:" + PORT + "/");
   } else {
     res.status(400).send("Invalid email / password or email has already been registered.");
@@ -133,7 +137,9 @@ app.post("/login", (req,res) => {
   let userEmail = req.body.email;
   let userPassword = req.body.password;
   if (checkIfEmailExists(userEmail) && checkIfPasswordMatches(userEmail, userPassword)) {
-    res.cookie("user_id", returnUserID(userEmail));
+    console.log(returnUserID(userEmail));
+    req.session.user_id = returnUserID(userEmail);
+    console.log(req.session.user_id);
     res.redirect("http://localhost:" + PORT + "/");
   } else {
     res.status(403).send("Invalid email or password.");
@@ -142,19 +148,20 @@ app.post("/login", (req,res) => {
 });
 
 app.post("/logout", (req, res) => {
-  let userId = req.cookies["user_id"];
-  res.clearCookie("user_id", userId);
+  delete req.session.user_id;
   res.redirect("http://localhost:" + PORT + "/");
 });
 
 app.get("/urls", (req, res) => {
-  let userId = req.cookies["user_id"];
+  let userId = req.session.user_id;
+  console.log(userId);
   if (userId === undefined) {
     res.redirect("/login");
   } else {
   let templateVars = {
     user: users[userId],
     urls: returnURLDatabaseforUser(userId) };
+    console.log(templateVars);
   res.render("urls_index", templateVars);
   }
 });
@@ -163,7 +170,7 @@ app.post("/urls", (req, res) => {
   do {
     var shortURL = generateRandomString();
   } while (urlDatabase[shortURL]);
-  let userId = req.cookies["user_id"];
+  let userId = req.session.user_id;
   urlDatabase[shortURL] = {};
   urlDatabase[shortURL]["userID"] = userId;
   urlDatabase[shortURL]["url"] = req.body.longURL;
@@ -171,7 +178,7 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => { //added delete functionality when delete post request is received from urls index page
-  let userId = req.cookies["user_id"];
+  let userId = req.session.user_id;
   if (userId === undefined) {
     res.redirect("/login");
   } else {
@@ -186,7 +193,7 @@ app.post("/urls/:id/delete", (req, res) => { //added delete functionality when d
 });
 
 app.get("/urls/new", (req, res) => {
-  let userId = req.cookies["user_id"];
+  let userId = req.session.user_id;
   if (userId === undefined) {
     res.redirect("/login");
   } else {
@@ -198,7 +205,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  let userId = req.cookies["user_id"];
+  let userId = req.session.user_id;
   if (userId === undefined) {
     res.redirect("/login");
   } else {
@@ -219,7 +226,7 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.post("/urls/:id/update", (req, res) => {
-  let userId = req.cookies["user_id"];
+  let userId = req.session.user_id;
   if (userId === undefined) {
     res.redirect("/login");
   } else {
