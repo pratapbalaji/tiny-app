@@ -149,9 +149,18 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => { //added delete functionality when delete post request is received from urls index page
-  let shortURL = req.params.id;
-  delete urlDatabase[shortURL];
-  res.redirect("http://localhost:" + PORT + "/urls");
+  let userId = req.cookies["user_id"];
+  if (userId === undefined) {
+    res.redirect("/login");
+  } else {
+    let shortURL = req.params.id;
+    if (urlDatabase[shortURL]["userID"] === userId) {
+      delete urlDatabase[shortURL];
+      res.redirect("http://localhost:" + PORT + "/urls");
+    } else {
+      res.status(401).send("You are not authorized to delete this URL.")
+    }
+  }
 });
 
 app.get("/urls/new", (req, res) => {
@@ -167,7 +176,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  let userId = req.cookies["user_id"]
+  let userId = req.cookies["user_id"];
   let templateVars = {
     shortURL: req.params.id,
     urls: urlDatabase,
@@ -181,10 +190,19 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.post("/urls/:id/update", (req, res) => {
-  let shortURL = req.params.id;
-  let longURL = req.body.updatedLongURL;
-  urlDatabase[shortURL]["url"] = longURL;
-  res.redirect("http://localhost:" + PORT + "/urls");
+  let userId = req.cookies["user_id"];
+  if (userId === undefined) {
+    res.redirect("/login");
+  } else {
+    let shortURL = req.params.id;
+    let longURL = req.body.updatedLongURL;
+    if (urlDatabase[shortURL]["userID"] === userId) {
+      urlDatabase[shortURL]["url"] = longURL;
+      res.redirect("http://localhost:" + PORT + "/urls");
+    } else {
+      res.status(401).send("You are not authorized to update this URL.");
+    }
+  }
 });
 
 app.get("/u/:shortURL", (req, res) => {
