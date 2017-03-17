@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Tiny App</title>
+  <title>TinyApp&trade;</title>
 </head>
 <body>
+    <h1>TinyApp&trade;</h1>
     <header>
       <% include partials/_header %>
     </header>
-    <form action="/urls" method="POST" style="margin:150px;">
-      <label for="longURL">Enter a URL:</label>
+    <h3>Create a New Short URL</h3>
+    <form action="/urls" method="POST">
+      <label for="longURL">Enter a Long URL:</label>
       <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
       <input type="submit" value="Submit">
     </form>

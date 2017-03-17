@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Tiny App</title>
+  <title>TinyApp&trade;</title>
 </head>
 <body>
-    <form action="/register" method="POST" style="margin:150px;">
+  <h1>TinyApp&trade;</h1>
+  <header>
+    <% include partials/_header %>
+  </header>
+  <h3>Register</h3>
+    <form action="/register" method="POST">
       <label for="email">Enter your email address:</label>
       <input id="email" type="email" name="email" placeholder="john@example.com" style="width: 300px">
       <p>

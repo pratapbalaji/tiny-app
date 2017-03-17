@@ -1,14 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>TinyApp - URLs Index</title>
+  <title>TinyApp&trade;</title>
 </head>
 <body>
+  <h1>TinyApp&trade;</h1>
   <header>
     <% include partials/_header %>
   </header>
+  <h3>My URL's</h3>
   <p>
   <table>
+    <tr>
+      <th align="left">
+        Short URL
+      </th>
+      <th align="left">
+        Long URL
+      </th>
+    </tr>
     <% for (var url in urls) { %>
     <tr>
       <td>

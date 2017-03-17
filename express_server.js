@@ -121,7 +121,10 @@ app.get("/", (req, res) => {
 app.get("/register", (req, res) => {
   let userId = req.session.user_id;
   if (userId === undefined) {
-    res.status(200).render("urls_register");
+    var templateVars = {
+      user: undefined
+    }
+    res.status(200).render("urls_register", templateVars);
   } else {
     res.redirect("http://localhost:" + PORT + "/");
   }
@@ -152,7 +155,10 @@ app.post("/register", (req, res) => {
 app.get("/login", (req, res) => {
   let userId = req.session.user_id;
   if (userId === undefined) {
-    res.status(200).render("urls_login");
+    let templateVars = {
+      user: undefined
+    }
+    res.status(200).render("urls_login", templateVars);
   } else {
     res.redirect("http://localhost:" + PORT + "/");
   }
