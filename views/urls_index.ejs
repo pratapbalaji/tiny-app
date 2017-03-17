@@ -11,18 +11,10 @@
   <h3>My URL's</h3>
   <p>
   <table>
-    <tr>
-      <th align="left">
-        Short URL
-      </th>
-      <th align="left">
-        Long URL
-      </th>
-    </tr>
     <% for (var url in urls) { %>
     <tr>
       <td>
-        <%= url %>
+        <b><%= url %></b>
       </td>
       <td>
         <%= urls[url]["url"] %>
