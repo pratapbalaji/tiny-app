@@ -130,7 +130,7 @@ app.post("/register", (req, res) => {
     req.session.user_id = userId;
     res.redirect("http://localhost:" + PORT + "/");
   } else {
-    res.status(400).send("Invalid email / password or email has already been registered.");
+    res.status(400).send("<p>Invalid email / password or email has already been registered.</p>");
   }
 });
 
@@ -145,7 +145,7 @@ app.post("/login", (req,res) => {
     req.session.user_id = returnUserID(userEmail);
     res.redirect("http://localhost:" + PORT + "/");
   } else {
-    res.status(403).send("Invalid email or password.");
+    res.status(403).send("<p>Invalid email or password.</p>");
   }
 
 });
@@ -169,14 +169,18 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  do {
-    var shortURL = generateRandomString();
-  } while (urlDatabase[shortURL]);
   let userId = req.session.user_id;
-  urlDatabase[shortURL] = {};
-  urlDatabase[shortURL]["userID"] = userId;
-  urlDatabase[shortURL]["url"] = req.body.longURL;
-  res.redirect("http://localhost:" + PORT + "/urls/" + shortURL);
+  if (userId === undefined) {
+    res.status(401).send('<p>You have not logged in.</p><a href="/login">Login Here</a>');
+  } else {
+    do {
+      var shortURL = generateRandomString();
+    } while (urlDatabase[shortURL]);
+    urlDatabase[shortURL] = {};
+    urlDatabase[shortURL]["userID"] = userId;
+    urlDatabase[shortURL]["url"] = req.body.longURL;
+    res.redirect("http://localhost:" + PORT + "/urls/" + shortURL);
+  }
 });
 
 app.post("/urls/:id/delete", (req, res) => { //added delete functionality when delete post request is received from urls index page
@@ -189,7 +193,7 @@ app.post("/urls/:id/delete", (req, res) => { //added delete functionality when d
       delete urlDatabase[shortURL];
       res.redirect("http://localhost:" + PORT + "/urls");
     } else {
-      res.status(401).send("You are not authorized to delete this URL.");
+      res.status(401).send("<p>You are not authorized to delete this URL.</p>");
     }
   }
 });
@@ -210,7 +214,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   let shortURL = req.params.id;
   if (!urlDatabase[shortURL]) {
-      res.status(404).send("This URL does not exist in the database. Try again.")
+      res.status(404).send("<p>This URL does not exist in the database. Try again.</p>")
   } else {
     let userId = req.session.user_id;
     if (userId === undefined) {
@@ -224,34 +228,38 @@ app.get("/urls/:id", (req, res) => {
           };
           res.render("urls_show", templateVars);
       } else {
-          res.status(403).send("You are not authorized to edit this URL.");
+          res.status(403).send("<p>You are not authorized to edit this URL.</p>");
       }
     }
   }
 });
 
 app.post("/urls/:id", (req, res) => {
-  let userId = req.session.user_id;
-  if (userId === undefined) {
-    res.redirect("/login");
+  let shortURL = req.params.id;
+  if (!urlDatabase[shortURL]) {
+      res.status(404).send("<p>This URL does not exist in the database. Try again.</p>")
   } else {
-    let shortURL = req.params.id;
-    let longURL = req.body.updatedLongURL;
-    if (urlDatabase[shortURL]["userID"] === userId) {
-      urlDatabase[shortURL]["url"] = longURL;
-      res.redirect("http://localhost:" + PORT + "/urls");
+    let userId = req.session.user_id;
+    if (userId === undefined) {
+      res.status(401).send('<p>You have not logged in.</p><a href="/login">Login Here</a>');
     } else {
-      res.status(401).send("You are not authorized to update this URL.");
+      let longURL = req.body.updatedLongURL;
+      if (urlDatabase[shortURL]["userID"] === userId) {
+        urlDatabase[shortURL]["url"] = longURL;
+        res.redirect("http://localhost:" + PORT + "/urls/" + shortURL);
+      } else {
+        res.status(403).send("<p>You are not authorized to update this URL.</p>");
+      }
     }
   }
 });
 
-app.get("/u/:shortURL", (req, res) => {
-  if (urlDatabase[req.params.shortURL]) { // checks if there is a valid object with the provided short URL
-  let longURL = urlDatabase[req.params.shortURL]["url"];
+app.get("/u/:id", (req, res) => {
+  if (urlDatabase[req.params.id]) { // checks if there is a valid object with the provided short URL
+  let longURL = urlDatabase[req.params.id]["url"];
   res.redirect(longURL); // if yes, user is redirected to the longURL of provided shortURL
   } else {
-    res.send("This URL does not exist in the database. Try again."); // if no, send a message back saying that this URL does not exist in the database
+    res.status(404).send("<p>This URL does not exist in the database. Try again.</p>"); // if no, send a message back saying that this URL does not exist in the database
   }
 });
 
