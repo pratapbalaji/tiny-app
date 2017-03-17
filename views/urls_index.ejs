@@ -7,17 +7,30 @@
   <header>
     <% include partials/_header %>
   </header>
-  <h2>URLs Index</h2>
-    <ul>
-      <% for (var url in urls) { %>
-      <li><%= urls[url]["url"] + "\t-\t" + url %>
-      <form method="POST" action="/urls/<%=url%>/delete">
-        <input type="submit" id="<%=url%>" name="<%=url%>" value="Delete">
-      </form></li>
-      <% } %>
-    </ul>
-  </form>
-  <a href="Shorten another URL">Shorten another URL</a>
-
+  <p>
+  <table>
+    <% for (var url in urls) { %>
+    <tr>
+      <td>
+        <%= url %>
+      </td>
+      <td>
+        <%= urls[url]["url"] %>
+      </td>
+      <td>
+        <form method="GET" action="/urls/<%=url%>">
+          <input type="submit" id="<%=url%>" name="<%=url%>" value="Edit">
+        </form>
+      </td>
+      <td>
+        <form method="POST" action="/urls/<%=url%>/delete">
+          <input type="submit" id="<%=url%>" name="<%=url%>" value="Delete">
+        </form>
+      </td>
+    </tr>
+    <% } %>
+  </table>
+  </p>
+  <p><a href="/urls/new">Create a New Short Link</a></p>
 </body>
 </html>

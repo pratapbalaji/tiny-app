@@ -7,11 +7,27 @@
   <header>
     <% include partials/_header %>
   </header>
-  <h2>URL Show</h2>
-  <%= urls[shortURL]["url"] + "\t-\t" + shortURL; %>
-  <form method = POST action="/urls/<%=shortURL%>/update">
-    <input id="updatedLongURL" name="updatedLongURL" type="text" placeholder="http://" style="width: 300px">
-    <input type="submit" value="submit">
-  </form>
+  <p>
+  <%=shortURL %>
+  </p>
+  <p>
+  <table>
+  <tr>
+    <form method="POST" action="/urls/<%=shortURL%>">
+      <td>
+      <input type="text" id="updatedLongURL" name="updatedLongURL" value="<%=urls[shortURL]["url"]%>" style="width: 300px">
+      </td>
+      <td>
+      <input type="submit" id="<%=shortURL%>" name="<%=shortURL%>" value="Update">
+      </td>
+    </form>
+    <td>
+    <form method="POST" action="/urls/<%=url%>/delete">
+      <input type="submit" id="<%=shortURL%>" name="<%=shortURL%>" value="Delete">
+    </form>
+    </td>
+  </tr>
+  </table>
+  </p>
 </body>
 </html>

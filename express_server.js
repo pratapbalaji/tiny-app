@@ -104,7 +104,12 @@ function returnURLDatabaseforUser (userId) {
 }
 
 app.get("/", (req, res) => {
-  res.end("Hello!");
+  let userId = req.session.user_id;
+  if (userId === undefined) {
+    res.redirect("/login");
+  } else {
+    res.redirect("/urls");
+  }
 });
 
 app.get("/register", (req, res) => {
@@ -137,9 +142,7 @@ app.post("/login", (req,res) => {
   let userEmail = req.body.email;
   let userPassword = req.body.password;
   if (checkIfEmailExists(userEmail) && checkIfPasswordMatches(userEmail, userPassword)) {
-    console.log(returnUserID(userEmail));
     req.session.user_id = returnUserID(userEmail);
-    console.log(req.session.user_id);
     res.redirect("http://localhost:" + PORT + "/");
   } else {
     res.status(403).send("Invalid email or password.");
@@ -154,14 +157,13 @@ app.post("/logout", (req, res) => {
 
 app.get("/urls", (req, res) => {
   let userId = req.session.user_id;
-  console.log(userId);
   if (userId === undefined) {
-    res.redirect("/login");
+    res.status(401).send('<p>You have not logged in.</p><a href="/login">Login Here</a>');
   } else {
+  res.status(200);
   let templateVars = {
     user: users[userId],
     urls: returnURLDatabaseforUser(userId) };
-    console.log(templateVars);
   res.render("urls_index", templateVars);
   }
 });
@@ -195,37 +197,40 @@ app.post("/urls/:id/delete", (req, res) => { //added delete functionality when d
 app.get("/urls/new", (req, res) => {
   let userId = req.session.user_id;
   if (userId === undefined) {
-    res.redirect("/login");
+    res.status(401).send('<p>You have not logged in.</p><a href="/login">Login Here</a>');
   } else {
   let templateVars = {
-    user: users[userId]
+    user: users[userId],
+    urls: returnURLDatabaseforUser(userId)
   };
   res.render("urls_new", templateVars);
   }
 });
 
 app.get("/urls/:id", (req, res) => {
-  let userId = req.session.user_id;
-  if (userId === undefined) {
-    res.redirect("/login");
+  let shortURL = req.params.id;
+  if (!urlDatabase[shortURL]) {
+      res.status(404).send("This URL does not exist in the database. Try again.")
   } else {
-    let shortURL = req.params.id;
-    if (!urlDatabase[shortURL]) {
-      res.send("This URL does not exist in the database. Try again.")
-    } else if (urlDatabase[shortURL]["userID"] === userId) {
-      let templateVars = {
-        shortURL: shortURL,
-        urls: urlDatabase,
-        user: users[userId]
-         };
-        res.render("urls_show", templateVars);
+    let userId = req.session.user_id;
+    if (userId === undefined) {
+      res.status(401).send('<p>You have not logged in.</p><a href="/login">Login Here</a>');
+    } else {
+      if (urlDatabase[shortURL]["userID"] === userId) {
+          let templateVars = {
+          shortURL: shortURL,
+          urls: returnURLDatabaseforUser(userId),
+          user: users[userId]
+          };
+          res.render("urls_show", templateVars);
       } else {
-        res.status(401).send("You are not authorized to delete this URL.");
+          res.status(403).send("You are not authorized to edit this URL.");
       }
+    }
   }
 });
 
-app.post("/urls/:id/update", (req, res) => {
+app.post("/urls/:id", (req, res) => {
   let userId = req.session.user_id;
   if (userId === undefined) {
     res.redirect("/login");
