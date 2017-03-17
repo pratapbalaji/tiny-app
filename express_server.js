@@ -1,6 +1,6 @@
 var express = require("express");
 var app = express();
-var PORT = process.env.PORT || 3000; // default port 8080
+var PORT = process.env.PORT || 3000;
 const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcrypt");
@@ -12,6 +12,8 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }));
 app.set("view engine", "ejs");
+
+app.disable('etag');
 
 const users = {
   "vinay": {
@@ -37,6 +39,7 @@ const urlDatabase = {
   }
 };
 
+// function to generate a random string of 6 alpha numeric characters
 function generateRandomString() {
   var charset = "abcdefghijklmnopqrstuvwxyz0123456789";
   var text = "";
@@ -46,6 +49,7 @@ function generateRandomString() {
   return text;
 }
 
+//function to check if the email supplied already exists in the database
 function checkIfEmailExists (userInputEmail) {
   for (var user in users) {
     if (users.hasOwnProperty(user)) {
@@ -57,6 +61,7 @@ function checkIfEmailExists (userInputEmail) {
   return false;
 }
 
+//function to check if the register form has the required fields
 function checkRegisterFormData (userInputEmail, userInputPassword) {
   if (userInputEmail === '' || userInputPassword === '') {
     return false;
@@ -65,6 +70,7 @@ function checkRegisterFormData (userInputEmail, userInputPassword) {
   }
 }
 
+//function to check if the password entered by the user matches the database
 function checkIfPasswordMatches (userInputEmail, userInputPassword) {
   for (var user in users) {
     if(users.hasOwnProperty(user)) {
@@ -76,6 +82,7 @@ function checkIfPasswordMatches (userInputEmail, userInputPassword) {
   return false;
 }
 
+//function to return the userID based on email supplied
 function returnUserID (userInputEmail) {
   for (var user in users) {
     if (users.hasOwnProperty(user)) {
@@ -86,6 +93,7 @@ function returnUserID (userInputEmail) {
   }
 }
 
+//function to return an object that contains URL's specific to a user
 function returnURLDatabaseforUser (userId) {
   let urlDatabaseForUser = {};
   for (url in urlDatabase) {
@@ -171,11 +179,10 @@ app.get("/urls", (req, res) => {
   if (userId === undefined) {
     res.status(401).send('<p>You have not logged in.</p><a href="/login">Login Here</a>');
   } else {
-  res.status(200);
-  let templateVars = {
-    user: users[userId],
-    urls: returnURLDatabaseforUser(userId) };
-  res.render("urls_index", templateVars);
+    let templateVars = {
+      user: users[userId],
+      urls: returnURLDatabaseforUser(userId) };
+    res.render("urls_index", templateVars);
   }
 });
 
@@ -266,11 +273,11 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.get("/u/:id", (req, res) => {
-  if (urlDatabase[req.params.id]) { // checks if there is a valid object with the provided short URL
+  if (urlDatabase[req.params.id]) {
   let longURL = urlDatabase[req.params.id]["url"];
-  res.redirect(longURL); // if yes, user is redirected to the longURL of provided shortURL
+  res.redirect(longURL);
   } else {
-    res.status(404).send("<p>This URL does not exist in the database. Try again.</p>"); // if no, send a message back saying that this URL does not exist in the database
+    res.status(404).send("<p>This URL does not exist in the database. Try again.</p>");
   }
 });
 
