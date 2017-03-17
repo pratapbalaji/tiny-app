@@ -58,9 +58,7 @@ function checkIfEmailExists (userInputEmail) {
 }
 
 function checkRegisterFormData (userInputEmail, userInputPassword) {
-  if (userInputEmail === '' || bcrypt.compareSync('', userInputPassword)) {
-    return false;
-  } else if (checkIfEmailExists(userInputEmail)) {
+  if (userInputEmail === '' || userInputPassword === '') {
     return false;
   } else {
     return true;
@@ -113,29 +111,43 @@ app.get("/", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  res.render("urls_register");
+  let userId = req.session.user_id;
+  if (userId === undefined) {
+    res.status(200).render("urls_register");
+  } else {
+    res.redirect("http://localhost:" + PORT + "/");
+  }
 });
 
 app.post("/register", (req, res) => {
   let userInputEmail = req.body.email;
-  let userInputPassword = bcrypt.hashSync(req.body.password, 10);
+  let userInputPassword = req.body.password;
   if(checkRegisterFormData(userInputEmail, userInputPassword)) {
-    do {
-      var userId = generateRandomString();
-    } while (users[userId]);
-    users[userId] = {};
-    users[userId]["id"] = userId;
-    users[userId]["email"] = userInputEmail;
-    users[userId]["password"] = userInputPassword;
-    req.session.user_id = userId;
-    res.redirect("http://localhost:" + PORT + "/");
+    if(!checkIfEmailExists(userInputEmail)) {
+      do {
+        var userId = generateRandomString();
+      } while (users[userId]);
+      users[userId] = {};
+      users[userId]["id"] = userId;
+      users[userId]["email"] = userInputEmail;
+      users[userId]["password"] = bcrypt.hashSync(userInputPassword, 10);
+      req.session.user_id = userId;
+      res.redirect("http://localhost:" + PORT + "/");
+    } else {
+      res.status(400).send("This email is already registered.");
+    }
   } else {
-    res.status(400).send("<p>Invalid email / password or email has already been registered.</p>");
+    res.status(400).send("Invalid email / password. Try again.");
   }
 });
 
 app.get("/login", (req, res) => {
-  res.render("urls_login");
+  let userId = req.session.user_id;
+  if (userId === undefined) {
+    res.status(200).render("urls_login");
+  } else {
+    res.redirect("http://localhost:" + PORT + "/");
+  }
 });
 
 app.post("/login", (req,res) => {
@@ -145,9 +157,8 @@ app.post("/login", (req,res) => {
     req.session.user_id = returnUserID(userEmail);
     res.redirect("http://localhost:" + PORT + "/");
   } else {
-    res.status(403).send("<p>Invalid email or password.</p>");
+    res.status(401).send("<p>Invalid email or password.</p>");
   }
-
 });
 
 app.post("/logout", (req, res) => {
